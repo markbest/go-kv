@@ -18,6 +18,16 @@ kv -c env.yaml
 go build -o kv_cli kv_cli.go
 kv_cli -h 127.0.0.1 -p 9000
 ```
+- 客户端命令：
+```
+set key value
+get key
+delete key
+list
+persistent
+help
+exit
+```
 
 ### example
 ![avatar](https://github.com/markbest/go-kv/blob/master/kv_cli.gif)
