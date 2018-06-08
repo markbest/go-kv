@@ -20,7 +20,7 @@ var (
 var help = func() {
 	fmt.Println("USAGE: kv-cli -h [arguments] ...")
 	fmt.Println("USAGE: kv-cli command [arguments] ...")
-	fmt.Println("\nThe commands are:\n\taction\tkv [set [arguments] [arguments]|get [arguments]|delete [arguments]|list|exit]")
+	fmt.Println("\nThe commands are:\n\taction\tkv [set|get|delete|list|persistent|exit|help]")
 	fmt.Println("\tfile\tmigrate create file")
 }
 
