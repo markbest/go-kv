@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -58,7 +57,7 @@ func (k *KV) Init() int {
 		}
 
 		// restore data
-		dbFileList, err := k.getDBFileList()
+		dbFileList, err := GetFileList(k.dataPath)
 		if err != nil {
 			return count
 		}
@@ -80,6 +79,7 @@ func (k *KV) Init() int {
 func (k *KV) Set(key, value string) {
 	k.locker.Lock()
 	defer k.locker.Unlock()
+
 	hashKeyName := k.hash(key)
 	k.keys[key] = hashKeyName
 	k.storage[hashKeyName] = value
@@ -95,9 +95,13 @@ func (k *KV) hash(key string) string {
 
 // get key value
 func (k *KV) Get(key string) (string, error) {
-	hashKeyName := k.hash(key)
-	if value, ok := k.storage[hashKeyName]; ok {
-		return value, nil
+	k.locker.Lock()
+	defer k.locker.Unlock()
+
+	if str, ok := k.keys[key]; ok {
+		if value, ok := k.storage[str]; ok {
+			return value, nil
+		}
 	}
 	return "", fmt.Errorf("not exist key %s", key)
 }
@@ -106,11 +110,11 @@ func (k *KV) Get(key string) (string, error) {
 func (k *KV) Del(key string) {
 	k.locker.Lock()
 	defer k.locker.Unlock()
+
 	hashKeyName := k.hash(key)
 	delete(k.keys, key)
 	delete(k.storage, hashKeyName)
 	os.Remove(k.dataPath + "/" + hashKeyName[0:2] + "/" + hashKeyName[2:])
-	k.storageIndex()
 }
 
 // list all keys
@@ -127,6 +131,7 @@ func (k *KV) List() []string {
 // clear all kv data
 func (k *KV) Clear() {
 	k.storage = make(map[string]string)
+	k.keys = make(map[string]string)
 	os.RemoveAll(k.dataPath)
 }
 
@@ -180,35 +185,4 @@ func (k *KV) storageIndex() error {
 		}
 	}
 	return nil
-}
-
-// Get db path file list
-func (k *KV) getDBFileList() ([]string, error) {
-	var rs, files []string
-	path := k.dataPath
-	PthSep := string(os.PathSeparator)
-	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
-		if f == nil {
-			return err
-		}
-
-		if f.IsDir() {
-			files = append(files, path+PthSep)
-		} else {
-			files = append(files, path)
-		}
-		return nil
-	})
-	if err != nil {
-		return rs, err
-	}
-
-	if len(files) > 0 {
-		for _, v := range files {
-			if len(strings.Split(v, PthSep)) == 3 && !strings.HasSuffix(v, PthSep) {
-				rs = append(rs, v)
-			}
-		}
-	}
-	return rs, err
 }

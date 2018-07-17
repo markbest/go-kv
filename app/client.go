@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/json"
 	"net"
 
 	"github.com/markbest/go-kv/utils"
@@ -27,47 +26,23 @@ func senderMsgAndReceive(conn net.Conn, msg []byte) (string, error) {
 func HandleSendServerMsg(conn net.Conn, action, inputStr1, inputStr2 string) (string, error) {
 	switch action {
 	case "set":
-		msg := &Msg{Action: "set", Key: inputStr1, Value: inputStr2}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "+:" + inputStr1 + ":" + inputStr2
+		return senderMsgAndReceive(conn, []byte(msg))
 	case "get":
-		msg := &Msg{Action: "get", Key: inputStr1}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "g:" + inputStr1
+		return senderMsgAndReceive(conn, []byte(msg))
 	case "delete":
-		msg := &Msg{Action: "delete", Key: inputStr1}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "-:" + inputStr1 + ":" + inputStr2
+		return senderMsgAndReceive(conn, []byte(msg))
 	case "list":
-		msg := &Msg{Action: "list"}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "l:" + inputStr1
+		return senderMsgAndReceive(conn, []byte(msg))
 	case "persistent":
-		msg := &Msg{Action: "persistent"}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "p"
+		return senderMsgAndReceive(conn, []byte(msg))
 	case "exit":
-		msg := &Msg{Action: "exit"}
-		jsonMsg, err := json.Marshal(msg)
-		if err != nil {
-			return "", err
-		}
-		return senderMsgAndReceive(conn, jsonMsg)
+		msg := "e"
+		return senderMsgAndReceive(conn, []byte(msg))
 	}
 	return "", nil
 }

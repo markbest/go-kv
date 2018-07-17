@@ -21,7 +21,6 @@ var help = func() {
 	fmt.Println("USAGE: kv-cli -h [arguments] ...")
 	fmt.Println("USAGE: kv-cli command [arguments] ...")
 	fmt.Println("\nThe commands are:\n\taction\tkv [set|get|delete|list|persistent|exit|help]")
-	fmt.Println("\tfile\tmigrate create file")
 }
 
 func main() {
@@ -46,7 +45,7 @@ func main() {
 		case "set":
 			if inputStr1 == "" || inputStr2 == "" {
 				help()
-				return
+				continue
 			}
 			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
 				return app.HandleSendServerMsg(conn, "set", inputStr1, inputStr2)
@@ -58,7 +57,7 @@ func main() {
 		case "get":
 			if inputStr1 == "" {
 				help()
-				return
+				continue
 			}
 			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
 				return app.HandleSendServerMsg(conn, "get", inputStr1, inputStr2)
@@ -70,7 +69,7 @@ func main() {
 		case "delete":
 			if inputStr1 == "" {
 				help()
-				return
+				continue
 			}
 			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
 				return app.HandleSendServerMsg(conn, "delete", inputStr1, inputStr2)
@@ -97,12 +96,11 @@ func main() {
 			fmt.Println(rs)
 		case "help":
 			help()
-			return
+			continue
 		default:
 			help()
-			return
+			continue
 		}
 	}
 Exit:
-	fmt.Println("success exit")
 }

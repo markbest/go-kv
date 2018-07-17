@@ -3,16 +3,13 @@ package conf
 import (
 	"github.com/toolkits/file"
 	"gopkg.in/yaml.v2"
-	"log"
 )
 
 var Config *GlobalConfig
 
 type AppConfig struct {
-	ListenAddr string `yaml:"listenaddr"`
-	ListenPort string `yaml:"listenport"`
-	Debug      bool   `yaml:"debug"`
-	Pprof      string `yaml:"pprof"`
+	Addr string `yaml:"addr"`
+	Port string `yaml:"port"`
 }
 
 type KVConfig struct {
@@ -29,8 +26,7 @@ type GlobalConfig struct {
 func ParseConfig(cfg string) error {
 	configContent, err := file.ToTrimString(cfg)
 	if err != nil {
-		return err
-		log.Fatalf("read config file error: %s", err.Error())
+		panic(err.Error())
 	}
 
 	var c GlobalConfig

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/json"
 	"net"
 	"strings"
 	"time"
@@ -14,36 +13,32 @@ import (
 
 // handle receive msg
 func handleReceiveMsg(msg []byte, kv *utils.KV) (string, string, error) {
-	receiveMsg := &Msg{}
-	err := json.Unmarshal(msg, receiveMsg)
-	if err != nil {
-		return receiveMsg.Action, "", err
-	}
+	receiveMsg := strings.Split(string(msg), ":")
 
-	switch receiveMsg.Action {
-	case "set":
-		kv.Set(receiveMsg.Key, receiveMsg.Value)
-		return receiveMsg.Action, receiveMsg.Value, nil
-	case "get":
-		value, err := kv.Get(receiveMsg.Key)
-		return receiveMsg.Action, value, err
-	case "delete":
-		kv.Del(receiveMsg.Key)
-		return receiveMsg.Action, receiveMsg.Key, nil
-	case "list":
+	switch receiveMsg[0] {
+	case "+":
+		kv.Set(receiveMsg[1], receiveMsg[2])
+		return "+", receiveMsg[2], nil
+	case "g":
+		value, err := kv.Get(receiveMsg[1])
+		return "-", value, err
+	case "-":
+		kv.Del(receiveMsg[1])
+		return "-", receiveMsg[1], nil
+	case "l":
 		keys := kv.List()
 		if len(keys) > 0 {
-			return receiveMsg.Action, strings.Join(keys, "\n"), nil
+			return "l", strings.Join(keys, "\n"), nil
 		} else {
-			return receiveMsg.Action, "null", nil
+			return "l", "null", nil
 		}
-	case "persistent":
+	case "p":
 		kv.Persistent()
-		return receiveMsg.Action, "success persistent", nil
-	case "exit":
-		return receiveMsg.Action, "success disconnect", nil
+		return "p", "success persistent", nil
+	case "e":
+		return "e", "success disconnect", nil
 	}
-	return receiveMsg.Action, "", nil
+	return "", "", nil
 }
 
 // persistent data
@@ -81,7 +76,7 @@ func handleRequest(conn net.Conn, readerChannel chan []byte, kv *utils.KV) {
 		case data := <-readerChannel:
 			log.Infof("receive msg: %s", data)
 			action, rs, err := handleReceiveMsg(data, kv)
-			if action == "exit" {
+			if action == "e" {
 				conn.Write([]byte(rs))
 				log.Infof("reply msg: %s", rs)
 				conn.Close()
