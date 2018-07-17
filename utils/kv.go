@@ -111,10 +111,11 @@ func (k *KV) Del(key string) {
 	k.locker.Lock()
 	defer k.locker.Unlock()
 
-	hashKeyName := k.hash(key)
-	delete(k.keys, key)
-	delete(k.storage, hashKeyName)
-	os.Remove(k.dataPath + "/" + hashKeyName[0:2] + "/" + hashKeyName[2:])
+	if str, ok := k.keys[key]; ok {
+		delete(k.keys, key)
+		delete(k.storage, str)
+		os.Remove(k.dataPath + "/" + str[0:2] + "/" + str[2:])
+	}
 }
 
 // list all keys
