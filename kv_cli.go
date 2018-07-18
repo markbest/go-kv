@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 
 	"github.com/markbest/go-kv/app"
 	"github.com/markbest/go-kv/utils/tcp"
@@ -33,12 +32,7 @@ func main() {
 		fmt.Scanln(&inputAction, &inputStr1, &inputStr2)
 		switch inputAction {
 		case "exit":
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "exit", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "exit", inputStr1, inputStr2)
 			fmt.Println(rs)
 			client.Close()
 			goto Exit
@@ -47,53 +41,33 @@ func main() {
 				help()
 				continue
 			}
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "set", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "set", inputStr1, inputStr2)
 			fmt.Println(rs)
+			app.ClearScan(&inputStr1, &inputStr2)
 		case "get":
 			if inputStr1 == "" {
 				help()
 				continue
 			}
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "get", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "get", inputStr1, inputStr2)
 			fmt.Println(rs)
+			app.ClearScan(&inputStr1, &inputStr2)
 		case "delete":
 			if inputStr1 == "" {
 				help()
 				continue
 			}
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "delete", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "delete", inputStr1, inputStr2)
 			fmt.Println(rs)
+			app.ClearScan(&inputStr1, &inputStr2)
 		case "list":
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "list", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "list", inputStr1, inputStr2)
 			fmt.Println(rs)
+			app.ClearScan(&inputStr1, &inputStr2)
 		case "persistent":
-			rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
-				return app.HandleSendServerMsg(conn, "persistent", inputStr1, inputStr2)
-			})
-			if err != nil {
-				fmt.Printf("occur error %s", err.Error())
-			}
+			rs := app.HandleScanInput(client, "persistent", inputStr1, inputStr2)
 			fmt.Println(rs)
+			app.ClearScan(&inputStr1, &inputStr2)
 		case "help":
 			help()
 			continue

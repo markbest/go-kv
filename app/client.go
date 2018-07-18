@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/markbest/go-kv/utils"
+	"github.com/markbest/go-kv/utils/tcp"
 )
 
 // send msg and receive reply
@@ -45,4 +46,22 @@ func HandleSendServerMsg(conn net.Conn, action, inputStr1, inputStr2 string) (st
 		return senderMsgAndReceive(conn, []byte(msg))
 	}
 	return "", nil
+}
+
+// clear scan string
+func ClearScan(inputStr1, inputStr2 *string) {
+	*inputStr1 = ""
+	*inputStr2 = ""
+}
+
+// handle scan input
+func HandleScanInput(client *tcp.TCPClient, action, inputStr1, inputStr2 string) string {
+	rs, err := client.ReadWrite(func(conn *net.TCPConn) (string, error) {
+		return HandleSendServerMsg(conn, action, inputStr1, inputStr2)
+	})
+	if err != nil {
+		return err.Error()
+	} else {
+		return rs
+	}
 }

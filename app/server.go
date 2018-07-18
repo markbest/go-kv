@@ -30,13 +30,13 @@ func handleReceiveMsg(msg []byte, kv *utils.KV) (string, string, error) {
 		if len(keys) > 0 {
 			return "l", strings.Join(keys, "\n"), nil
 		} else {
-			return "l", "null", nil
+			return "l", "no keys", nil
 		}
 	case "p":
 		kv.Persistent()
 		return "p", "success persistent", nil
 	case "e":
-		return "e", "success disconnect", nil
+		return "e", "success exit", nil
 	}
 	return "", "", nil
 }
