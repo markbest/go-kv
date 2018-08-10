@@ -15,7 +15,7 @@ import (
 type KV struct {
 	storage  map[string]string
 	keys     map[string]string
-	locker   *sync.Mutex
+	locker   *sync.RWMutex
 	dataPath string
 }
 
@@ -24,7 +24,7 @@ func NewKV(dataPath string) *KV {
 	return &KV{
 		storage:  make(map[string]string),
 		keys:     make(map[string]string),
-		locker:   &sync.Mutex{},
+		locker:   &sync.RWMutex{},
 		dataPath: dataPath,
 	}
 }
@@ -95,8 +95,8 @@ func (k *KV) hash(key string) string {
 
 // get key value
 func (k *KV) Get(key string) (string, error) {
-	k.locker.Lock()
-	defer k.locker.Unlock()
+	k.locker.RLock()
+	defer k.locker.RUnlock()
 
 	if str, ok := k.keys[key]; ok {
 		if value, ok := k.storage[str]; ok {
